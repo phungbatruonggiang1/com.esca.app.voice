@@ -1,0 +1,8 @@
+{
+  "id": "vn.sparc.esca.voiceapp",
+  "title": "Voice",
+  "type": "native",
+  "main": "/usr/bin/esca-voiceapp",
+  "user": "weston",
+  "removable": false
+}
