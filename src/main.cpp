@@ -47,6 +47,10 @@ constexpr uint32_t kBusy = 0xffffb74d;
 constexpr uint32_t kBad = 0xffe57373;
 constexpr uint32_t kGood = 0xffaed581;
 
+/// Matches esca-voiced's --wait. Used only to draw the countdown; the
+/// service owns the decision to give up.
+constexpr double kWaitSeconds = 20.0;
+
 /// Everything the bus thread writes and the drawing thread reads.
 struct Shared {
     std::mutex mutex;
@@ -193,6 +197,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    auto listening_began = std::chrono::steady_clock::now();
+    std::string previous_phase = "idle";
+
     while (!g_quit && !window.closed()) {
         if (!window.dispatch()) {
             std::fprintf(stderr, "esca-voiceapp: compositor went away\n");
@@ -225,6 +232,17 @@ int main(int argc, char **argv)
             history.assign(shared.history.begin(), shared.history.end());
         }
 
+        if (phase != previous_phase) {
+            if (phase == "listening")
+                listening_began = std::chrono::steady_clock::now();
+            previous_phase = phase;
+        }
+        const double listening_since =
+            phase == "listening"
+                ? std::chrono::duration<double>(std::chrono::steady_clock::now()
+                                                - listening_began).count()
+                : 0.0;
+
         fill_rect(px, w, h, stride, { 0, 0, w, h }, kBackground);
 
         const int margin = 24 * scale / 3;
@@ -236,6 +254,7 @@ int main(int argc, char **argv)
 
         const bool listening = phase == "listening";
         const bool preparing = phase == "preparing";
+        const bool prompting = phase == "prompting";
         const bool transcribing = phase == "transcribing";
 
         if (listening) {
@@ -257,15 +276,25 @@ int main(int argc, char **argv)
                           db > floor + 9.0 ? kAccent : kDim);
             }
 
-            const std::string hint = speaking ? "listening..." : "speak now";
+            std::string hint = speaking ? "listening..." : "speak now";
+            if (!speaking && listening_since > 0.0) {
+                // The service gives up if nobody talks. Showing that clock
+                // keeps a silent screen from looking like a broken one.
+                const double left = kWaitSeconds - listening_since;
+                if (left > 0) {
+                    char buf[48];
+                    std::snprintf(buf, sizeof(buf), "speak now  (%.0fs)", left);
+                    hint = buf;
+                }
+            }
             draw_text(px, w, h, stride, stage.x + 8, stage.y + 8, hint,
                       speaking ? kAccent : kDim, scale);
         } else {
-            const uint32_t fill = preparing || transcribing ? kPanel : kPanel;
-            const uint32_t ink = preparing   ? kBusy
-                                 : transcribing ? kBusy
-                                                : kAccent;
+            const uint32_t fill = kPanel;
+            const uint32_t ink =
+                preparing || prompting || transcribing ? kBusy : kAccent;
             const std::string label = preparing      ? "PREPARING..."
+                                      : prompting    ? "LISTEN FOR THE PROMPT"
                                       : transcribing ? "TRANSCRIBING..."
                                                      : "PRESS TO TALK";
             draw_button(px, w, h, stride, stage, label, fill, ink, scale + 1);
