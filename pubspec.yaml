@@ -1,0 +1,30 @@
+name: esca_voice
+description: ESCA voice -- press to talk, read what was heard, hear it read back.
+publish_to: none
+version: 0.2.0
+
+environment:
+  sdk: ">=3.6.0 <4.0.0"
+
+# dbus is pure Dart: nothing to cross-compile for the board.
+dependencies:
+  flutter:
+    sdk: flutter
+  dbus: ^0.8.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: BeVietnamPro
+      fonts:
+        - asset: fonts/BeVietnamPro-Regular.ttf
+        - asset: fonts/BeVietnamPro-Medium.ttf
+          weight: 500
+        - asset: fonts/BeVietnamPro-SemiBold.ttf
+          weight: 600
+        - asset: fonts/BeVietnamPro-Bold.ttf
+          weight: 700

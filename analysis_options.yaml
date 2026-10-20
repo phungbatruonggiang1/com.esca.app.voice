@@ -1,0 +1,17 @@
+# Plain analyzer configuration: flutter_lints would be another dependency to
+# fetch, and this sample deliberately has none.
+analyzer:
+  exclude:
+    - build/**
+    - linux/**
+  language:
+    strict-casts: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_final_locals
+    - avoid_print
+    - use_super_parameters
