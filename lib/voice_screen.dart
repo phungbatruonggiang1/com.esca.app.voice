@@ -196,9 +196,34 @@ class _MicOrb extends StatefulWidget {
 }
 
 class _MicOrbState extends State<_MicOrb> with SingleTickerProviderStateMixin {
+  // Spins only while the service is busy. A controller left repeating would
+  // keep the engine drawing every vsync with nothing on screen changing.
   late final AnimationController _spin =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1400))..repeat();
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 1400));
   bool _hover = false;
+
+  static bool _busy(String phase) =>
+      phase == 'preparing' || phase == 'prompting' || phase == 'transcribing';
+
+  void _syncSpin() {
+    if (_busy(widget.controller.phase)) {
+      if (!_spin.isAnimating) _spin.repeat();
+    } else if (_spin.isAnimating) {
+      _spin.stop();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _syncSpin();
+  }
+
+  @override
+  void didUpdateWidget(_MicOrb oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncSpin();
+  }
 
   @override
   void dispose() {
@@ -211,7 +236,7 @@ class _MicOrbState extends State<_MicOrb> with SingleTickerProviderStateMixin {
     final c = widget.controller;
     final phase = c.phase;
     final idle = phase == 'idle';
-    final busy = phase == 'preparing' || phase == 'prompting' || phase == 'transcribing';
+    final busy = _busy(phase);
     final color = switch (phase) {
       'preparing' || 'prompting' => EscaColors.warn,
       'transcribing' => EscaColors.violet,
