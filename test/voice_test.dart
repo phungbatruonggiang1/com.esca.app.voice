@@ -55,7 +55,7 @@ void voiceTest(String description, Future<void> Function(WidgetTester, FakeVoice
 
 void main() {
   voiceTest('pressing the microphone starts a session', (tester, backend) async {
-    expect(find.text('Nhấn để nói'), findsOneWidget);
+    expect(find.text('Press to talk'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.mic_rounded).last);
     await tester.pump();
     expect(backend.calls, ['StartListening']);
@@ -64,13 +64,13 @@ void main() {
   voiceTest('the invitation to speak waits for "listening"', (tester, backend) async {
     backend.emit(PhaseChanged('preparing'));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('Đang chuẩn bị…'), findsOneWidget);
-    expect(find.text('Mời bạn nói'), findsNothing);
+    expect(find.text('Preparing…'), findsOneWidget);
+    expect(find.text('Speak now'), findsNothing);
 
     backend.emit(PhaseChanged('listening'));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('Mời bạn nói'), findsOneWidget);
-    expect(find.text('Dừng'), findsOneWidget);
+    expect(find.text('Speak now'), findsOneWidget);
+    expect(find.text('Stop'), findsOneWidget);
   });
 
   voiceTest('a press while busy does not start a second session', (tester, backend) async {
@@ -82,14 +82,14 @@ void main() {
   });
 
   voiceTest('what was heard is shown and can be read back', (tester, backend) async {
-    backend.hear('bật đèn phòng khách');
+    backend.hear('turn on the living room light');
     await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('“bật đèn phòng khách”'), findsOneWidget);
+    expect(find.text('“turn on the living room light”'), findsOneWidget);
     expect(find.text('92%'), findsOneWidget);
 
-    await tester.tap(find.text('Đọc lại'));
+    await tester.tap(find.text('Read back'));
     await tester.pump();
-    expect(backend.said, ['bật đèn phòng khách']);
+    expect(backend.said, ['turn on the living room light']);
   });
 
   voiceTest('a fault is shown', (tester, backend) async {

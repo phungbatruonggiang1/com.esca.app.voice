@@ -6,7 +6,7 @@ A Flutter application, talking to `esca-voiced` over D-Bus.
 
 ## The button does not become a waveform until it is real
 
-The screen shows **Nhấn để nói** (press to talk) until `esca-voiced` reports
+The screen shows **Press to talk** until `esca-voiced` reports
 `listening` — microphone open, server answering. Only then does the top
 half become a waveform and invite someone to speak.
 
@@ -24,7 +24,7 @@ The waveform is drawn between the noise floor the service is tracking and
 blue once the level clears the floor by the margin that counts as speech,
 which makes the detector's own decision visible rather than hidden.
 
-**Đọc lại** (say it back) sends the last transcript to `Say()`, which fetches WAV
+**Read back** sends the last transcript to `Say()`, which fetches WAV
 from the server and plays it. It is the shortest honest test of the whole
 round trip, and it exercises text to speech without needing a keyboard.
 

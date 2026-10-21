@@ -26,8 +26,8 @@ class VoiceScreen extends StatelessWidget {
                 children: [
                   EscaTopBar(
                     icon: Icons.mic_rounded,
-                    title: 'Trợ lý giọng nói',
-                    subtitle: 'Nhận dạng tiếng nói và đọc lại qua máy chủ AI',
+                    title: 'Voice Assistant',
+                    subtitle: 'Speech recognition and read-back through the AI server',
                     onBack: onBack,
                     trailing: [_PhasePill(phase: controller.phase)],
                   ),
@@ -71,11 +71,11 @@ class _PhasePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (label, color) = switch (phase) {
-      'preparing' => ('Đang chuẩn bị', EscaColors.warn),
-      'prompting' => ('Đang phát lời nhắc', EscaColors.warn),
-      'listening' => ('Đang nghe', EscaColors.accent),
-      'transcribing' => ('Đang nhận dạng', EscaColors.violet),
-      _ => ('Sẵn sàng', EscaColors.textDim),
+      'preparing' => ('Preparing', EscaColors.warn),
+      'prompting' => ('Playing prompt', EscaColors.warn),
+      'listening' => ('Listening', EscaColors.accent),
+      'transcribing' => ('Transcribing', EscaColors.violet),
+      _ => ('Ready', EscaColors.textDim),
     };
     return StatusPill(label: label, color: color, live: phase != 'idle');
   }
@@ -95,11 +95,11 @@ class _Stage extends StatelessWidget {
     final listening = phase == 'listening';
 
     final title = switch (phase) {
-      'preparing' => 'Đang chuẩn bị…',
-      'prompting' => 'Hãy nghe lời nhắc…',
-      'listening' => controller.speaking ? 'Đang nghe…' : 'Mời bạn nói',
-      'transcribing' => 'Đang nhận dạng…',
-      _ => 'Nhấn để nói',
+      'preparing' => 'Preparing…',
+      'prompting' => 'Listen to the prompt…',
+      'listening' => controller.speaking ? 'Listening…' : 'Speak now',
+      'transcribing' => 'Transcribing…',
+      _ => 'Press to talk',
     };
 
     return EscaCard(
@@ -135,7 +135,7 @@ class _Stage extends StatelessWidget {
                 : OutlinedButton.icon(
                     onPressed: controller.stop,
                     icon: const Icon(Icons.stop_rounded),
-                    label: const Text('Dừng'),
+                    label: const Text('Stop'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: EscaColors.text,
                       side: const BorderSide(color: EscaColors.borderStrong),
@@ -168,17 +168,17 @@ class _Hint extends StatelessWidget {
         builder: (context, _) {
           final left = VoiceController.waitForSpeech - DateTime.now().difference(since);
           final seconds = left.inSeconds.clamp(0, 99);
-          return Text('Tự dừng sau ${seconds}s nếu không có tiếng nói', style: style);
+          return Text('Stops in ${seconds}s if nobody speaks', style: style);
         },
       );
     }
 
     final hint = switch (controller.phase) {
-      'preparing' => 'Kiểm tra máy chủ AI và mở micro',
-      'prompting' => 'Micro sẽ mở ngay sau lời nhắc',
-      'listening' => 'Ngừng nói để kết thúc câu',
-      'transcribing' => 'Đang gửi đoạn ghi âm lên máy chủ AI',
-      _ => 'Micro chỉ mở khi máy chủ AI đã sẵn sàng',
+      'preparing' => 'Checking the AI server and opening the microphone',
+      'prompting' => 'The microphone opens right after the prompt',
+      'listening' => 'Stop speaking to end the sentence',
+      'transcribing' => 'Sending the recording to the AI server',
+      _ => 'The microphone opens only once the AI server is ready',
     };
     return Text(hint, style: style);
   }
@@ -453,7 +453,7 @@ class _HeardCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('ĐÃ NGHE ĐƯỢC', style: text.labelSmall),
+              Text('HEARD', style: text.labelSmall),
               const Spacer(),
               if (t != null) ...[
                 _Chip(t.language.toUpperCase()),
@@ -467,8 +467,8 @@ class _HeardCard extends StatelessWidget {
             duration: const Duration(milliseconds: 300),
             child: Text(
               t == null
-                  ? 'Chưa có câu nào. Nhấn nút micro và nói một câu.'
-                  : (t.text.isEmpty ? '(không nghe được gì)' : '“${t.text}”'),
+                  ? 'Nothing yet. Press the microphone and say something.'
+                  : (t.text.isEmpty ? '(nothing heard)' : '“${t.text}”'),
               key: ValueKey(t?.at),
               style: t == null
                   ? text.titleMedium?.copyWith(color: EscaColors.textFaint)
@@ -481,7 +481,7 @@ class _HeardCard extends StatelessWidget {
             const SizedBox(height: 20),
             Row(
               children: [
-                Text('Độ tin cậy', style: text.bodySmall),
+                Text('Confidence', style: text.bodySmall),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ClipRRect(
@@ -503,7 +503,7 @@ class _HeardCard extends StatelessWidget {
           FilledButton.icon(
             onPressed: t == null || t.text.isEmpty ? null : controller.sayBack,
             icon: const Icon(Icons.volume_up_rounded),
-            label: const Text('Đọc lại'),
+            label: const Text('Read back'),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
               shape: const StadiumBorder(),
@@ -551,12 +551,12 @@ class _HistoryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Các câu trước', style: text.titleMedium),
+          Text('Earlier sentences', style: text.titleMedium),
           const SizedBox(height: 8),
           Expanded(
             child: older.isEmpty
                 ? Center(
-                    child: Text('Các câu đã nói sẽ hiện ở đây',
+                    child: Text('Sentences you say will appear here',
                         style: text.bodyMedium?.copyWith(color: EscaColors.textFaint)),
                   )
                 : ListView.separated(
@@ -573,11 +573,11 @@ class _HistoryCard extends StatelessWidget {
                             Text(_time(t.at), style: text.bodySmall),
                             const SizedBox(width: 16),
                             Expanded(
-                              child: Text(t.text.isEmpty ? '(không nghe được gì)' : t.text,
+                              child: Text(t.text.isEmpty ? '(nothing heard)' : t.text,
                                   style: text.bodyLarge, overflow: TextOverflow.ellipsis),
                             ),
                             IconButton(
-                              tooltip: 'Đọc lại câu này',
+                              tooltip: 'Read this back',
                               onPressed: t.text.isEmpty ? null : () => controller.sayBack(t),
                               icon: const Icon(Icons.volume_up_outlined, size: 20),
                               color: EscaColors.textDim,

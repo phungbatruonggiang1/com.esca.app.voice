@@ -176,7 +176,7 @@ class VoiceController extends ChangeNotifier {
     try {
       _setPhase(await _backend.phase());
     } catch (e) {
-      _error = 'Không liên lạc được esca-voiced. Dịch vụ đã được bật chưa?';
+      _error = 'Cannot reach esca-voiced. Is the service running?';
     }
     notifyListeners();
   }
@@ -185,7 +185,7 @@ class VoiceController extends ChangeNotifier {
     try {
       await call();
     } catch (e) {
-      _error = 'Không liên lạc được esca-voiced';
+      _error = 'Cannot reach esca-voiced';
       notifyListeners();
     }
   }

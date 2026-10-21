@@ -27,7 +27,7 @@ class VoiceApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Trợ lý giọng nói',
+      title: 'Voice Assistant',
       debugShowCheckedModeBanner: false,
       theme: escaTheme(),
       home: VoiceScreen(controller: controller, onBack: onBack),

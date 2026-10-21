@@ -163,7 +163,7 @@ class EscaTopBar extends StatelessWidget {
   final String subtitle;
   final Color color;
 
-  /// Shown as a "Trang chủ" button when set.
+  /// Shown as a "Home" button when set.
   final VoidCallback? onBack;
   final List<Widget> trailing;
 
@@ -196,7 +196,7 @@ class EscaTopBar extends StatelessWidget {
 }
 
 class BackPill extends StatelessWidget {
-  const BackPill({super.key, required this.onPressed, this.label = 'Trang chủ'});
+  const BackPill({super.key, required this.onPressed, this.label = 'Home'});
 
   final VoidCallback onPressed;
   final String label;
